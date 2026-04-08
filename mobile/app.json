@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "TaskFlow AI",
+    "slug": "taskflow-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.taskflowai.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.taskflowai.mobile",
+      "versionCode": 1
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "name": "TaskFlow AI",
+      "shortName": "TaskFlow",
+      "lang": "es"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-splash-screen",
+      "expo-constants",
+      "expo-linear-gradient",
+      "expo-notifications",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "taskflow-ai"
+      }
+    }
+  }
+}

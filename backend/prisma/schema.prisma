@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  avatar    String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  preferences   UserPreferences?
+  projects      Project[]
+  tasks         Task[]
+  timeEntries   TimeEntry[]
+  aiInsights    AIInsight[]
+
+  @@map("users")
+}
+
+model UserPreferences {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme            Theme    @default(SYSTEM)
+  notifications    NotificationPreferences @default(default)
+  productivity    ProductivitySettings @default(default)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("user_preferences")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  color       String
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("projects")
+}
+
+model Task {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?
+  priority       Priority @default(MEDIUM)
+  status         TaskStatus @default(TODO)
+  estimatedHours Int?
+  actualHours    Int?
+  dueDate        DateTime?
+  projectId      String
+  userId         String
+  tags           String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  project        Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timeEntries    TimeEntry[]
+  aiInsights     AIInsight[]
+
+  @@map("tasks")
+}
+
+model TimeEntry {
+  id        String   @id @default(cuid())
+  taskId    String
+  startTime DateTime @default(now())
+  endTime   DateTime?
+  duration  Int?
+  note      String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("time_entries")
+}
+
+model AIInsight {
+  id          String           @id @default(cuid())
+  type        InsightType
+  content     String
+  confidence  Float
+  taskId      String?
+  userId      String
+  createdAt   DateTime         @default(now())
+
+  // Relations
+  task        Task?             @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_insights")
+}
+
+// Enums
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum InsightType {
+  PRIORITY
+  PREDICTION
+  SUGGESTION
+}
+
+// Embedded Types
+model NotificationPreferences {
+  email           Boolean @default(true)
+  push            Boolean @default(true)
+  taskReminders   Boolean @default(true)
+  dailyDigest     Boolean @default(true)
+}
+
+model ProductivitySettings {
+  workHours       WorkHours @default(default)
+  defaultPriority Priority   @default(MEDIUM)
+  autoArchive     Boolean   @default(true)
+}
+
+model WorkHours {
+  start   String @default("09:00")
+  end     String @default("18:00")
+  timezone String @default("UTC")
+}
+
+model default {
+  workHours      WorkHours @default({ start: "09:00", end: "18:00", timezone: "UTC" })
+  defaultPriority Priority   @default(MEDIUM)
+  autoArchive     Boolean   @default(true)
+}
