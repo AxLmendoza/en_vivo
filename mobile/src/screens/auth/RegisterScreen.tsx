@@ -8,8 +8,10 @@ import {
   Platform,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { theme } from '@/theme';
+import { useAuthStore } from '@/store/authStore';
 
 export const RegisterScreen = ({ navigation }: { navigation: any }) => {
   const [name, setName] = useState('');
@@ -17,10 +19,11 @@ export const RegisterScreen = ({ navigation }: { navigation: any }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { login: userLogin } = useAuthStore();
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
-      Alert.alert('Error', 'Por completa todos los campos');
+      Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
 
@@ -36,11 +39,11 @@ export const RegisterScreen = ({ navigation }: { navigation: any }) => {
 
     setIsLoading(true);
     try {
-      // TODO: Implementar lógica de registro
-      console.log('Register attempt:', { name, email, password });
+      // Usamos el login store para registro también
+      await userLogin(email, password);
       navigation.replace('App');
-    } catch (error) {
-      Alert.alert('Error', 'Error al crear la cuenta');
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.message || 'Error al crear la cuenta');
     } finally {
       setIsLoading(false);
     }
@@ -95,9 +98,11 @@ export const RegisterScreen = ({ navigation }: { navigation: any }) => {
             onPress={handleRegister}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>
-              {isLoading ? 'Creando...' : 'Crear cuenta'}
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.buttonText}>Crear cuenta</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity

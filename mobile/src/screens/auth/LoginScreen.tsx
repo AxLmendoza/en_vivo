@@ -8,13 +8,16 @@ import {
   Platform,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { theme } from '@/theme';
+import { useAuthStore } from '@/store/authStore';
 
 export const LoginScreen = ({ navigation }: { navigation: any }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuthStore();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -24,11 +27,10 @@ export const LoginScreen = ({ navigation }: { navigation: any }) => {
 
     setIsLoading(true);
     try {
-      // TODO: Implementar lógica de login
-      console.log('Login attempt:', { email, password });
-      navigation.replace('App');
-    } catch (error) {
-      Alert.alert('Error', 'Credenciales inválidas');
+      await login(email, password);
+      // El login store se encarga de la navegación
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.message || 'Credenciales inválidas');
     } finally {
       setIsLoading(false);
     }
@@ -67,9 +69,11 @@ export const LoginScreen = ({ navigation }: { navigation: any }) => {
             onPress={handleLogin}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>
-              {isLoading ? 'Iniciando...' : 'Iniciar sesión'}
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.buttonText}>Iniciar sesión</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity

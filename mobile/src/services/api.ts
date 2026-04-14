@@ -49,6 +49,20 @@ export interface RegisterData {
   password: string;
 }
 
+export interface AuthResponse {
+  user: User;
+  token: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Task {
   id: string;
   title: string;
